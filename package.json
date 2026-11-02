@@ -1,0 +1,39 @@
+{
+  "name": "cli-code-reviewer",
+  "version": "1.0.0",
+  "description": "Zero-leak, local AI code review and security guardrail CLI for developers.",
+  "keywords": [
+    "ai",
+    "code-review",
+    "LLM"
+  ],
+  "homepage": "https://github.com/ashishcodesstuff/cli-code-reviewer#readme",
+  "bugs": {
+    "url": "https://github.com/ashishcodesstuff/cli-code-reviewer/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ashishcodesstuff/cli-code-reviewer.git"
+  },
+  "license": "GPL-3.0-or-later",
+  "author": "Ashish Kumar",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "local-pr-review": "./dist/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "openai": "^7.47.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
