@@ -20,6 +20,7 @@ const client = new OpenAI({
 });
 
 async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<ReviewResult> {
+    // PREFLIGHT CHECK FOR LOADED MODEL 
     try {
         const modelsResponse = await client.models.list();
         if (!modelsResponse.data || !modelsResponse.data.length) {
