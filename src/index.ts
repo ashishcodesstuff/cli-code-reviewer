@@ -23,7 +23,7 @@ async function main() {
 
     const spinner = ora('🤖 Scanning local git changes...').start();
 
-    const { diff, changedFiles } = getLocalDiff('main');
+    const { diff, changedFiles } = getLocalDiff();
 
     if (!diff) {
         spinner.succeed(kleur.green('🌳 Working tree is clean. No code changes to review.'));
