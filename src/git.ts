@@ -9,7 +9,7 @@ export interface GitChanges {
 // Extensions that are never code and should never be sent to an LLM
 const BLACKLISTED_EXTENSIONS = new Set([
   // Images & Media
-  '.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.webp', '.mp4', '.mov', '.mp3',
+  '.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.webp', '.mp4', '.mov', '.mp3', '.txt',
   // Documents & Archives
   '.pdf', '.doc', '.docx', '.zip', '.tar', '.gz', '.rar', '.7z',
   // Binaries & Compiled Output
@@ -26,18 +26,7 @@ function getFilteredChangedFiles(files: string[]): string[] {
 
   if (codeFiles.length === 0) return [];
 
-  try {
-    const ignoredOutput = execSync(`git check-ignore ${codeFiles.join(' ')}`, { encoding: 'utf-8' });
-    console.log(ignoredOutput)
-    const ignoredFiles = new Set(
-      ignoredOutput.split('\n').map(f => f.trim()).filter(Boolean)
-    );
-
-    return codeFiles.filter(file => !ignoredFiles.has(file));
-  } catch (err) {
-    console.log(err)
-    return codeFiles;
-  }
+  return codeFiles;
 }
 
 function getLocalDiff(targetBranch = "HEAD~1"): GitChanges {
@@ -47,7 +36,6 @@ function getLocalDiff(targetBranch = "HEAD~1"): GitChanges {
 
         const changedFiles = filesOutput ? filesOutput.split('\n').filter(Boolean) : [];
         const filteredFiles = getFilteredChangedFiles(changedFiles);
-        console.log(filteredFiles)
 
         return {diff, changedFiles: filteredFiles};
     } catch (error) {
