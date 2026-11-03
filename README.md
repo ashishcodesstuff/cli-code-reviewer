@@ -14,6 +14,7 @@ Designed for developers who want automated guardrails and security checks on eve
 * **Strict Security Guardrails & File Attribution:** Instantly flags hardcoded API keys, sensitive credentials, and common vulnerabilities, explicitly binding each finding to its exact file path.
 * **Robust JSON Enforcement:** Uses advanced regex sanitization paired with **Zod** schema validation to eliminate parsing errors from local models.
 * **Modern Terminal UI:** Built with bold branded headers, `kleur`, and `ora` for a clean, color-coded, professional developer experience.
+* **Demo Video Link:** https://youtu.be/ywLPHzqt1Gs
 
 ---
 
