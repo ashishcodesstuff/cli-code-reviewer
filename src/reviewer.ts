@@ -40,14 +40,19 @@ async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<Rev
     const missingTestFiles = findMissingTestFiles(changedFiles);
 
     const systemPrompt = `
-        You are an expert senior software engineer and security auditor.
+You are an expert senior software engineer and security auditor.
         Analyze the provided git diff for security vulnerabilities, architectural flaws, and test coverage.
 
-        CRITICAL SECURITY RULES:
-        - You MUST flag ANY hardcoded API keys, secrets, access tokens, passwords, private keys, or sensitive connection strings as a security vulnerability.
-        - If hardcoded credentials (like anything containing passwords or API keys) are found in the diff, you MUST list them explicitly in "securityVulnerabilities", provide mitigation steps under "suggestedRefactors", and SET "riskLevel" TO "HIGH".
-        - If "securityVulnerabilities" contains items, "riskLevel" CANNOT be LOW or MEDIUM. It MUST be "HIGH".
-        - Look out for OWASP Top 10 risks (e.g., SQL injection, XSS, insecure deserialization).
+        CRITICAL INSTRUCTIONS FOR DIFF ANALYSIS:
+        1. Pay attention to git diff prefixes:
+        - Lines starting with '+' are NEW additions. Focus your review and risk assessment primarily on these.
+        - Lines starting with '-' are REMOVED code (deletions / cleanups). 
+        2. If a sensitive pattern (like a password, API key, or hardcoded secret) appears on a REMOVED line ('-'), it means the developer is actively CLEANING IT UP or FIXING IT. Do NOT flag removed security issues as risks.
+        3. Only flag security vulnerabilities if they are introduced or present in the active code.
+        4. Look out for OWASP Top 10 risks (e.g., SQL injection, XSS, insecure deserialization).
+
+        FILE ATTRIBUTION RULE:
+        - Every entry in "securityVulnerabilities" MUST explicitly state the file path where the issue was found using the format: "[path/to/file.ts]: Description of the vulnerability."
 
         TEST COVERAGE RULES:
         - The list of modified files in this PR is: ${JSON.stringify(changedFiles)}
@@ -56,7 +61,7 @@ async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<Rev
         You MUST output valid raw JSON only, adhering strictly to this schema:
         {
         "riskLevel": "LOW" | "MEDIUM" | "HIGH",
-        "securityVulnerabilities": ["List of security risks or hardcoded secrets found"],
+        "securityVulnerabilities": ["[src/auth.ts]: Hardcoded JWT secret found on line 14"],
         "suggestedRefactors": ["List of code improvements"],
         "missingTestFiles": ["src/example.ts"]
         }

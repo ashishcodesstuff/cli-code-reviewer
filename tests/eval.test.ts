@@ -37,4 +37,20 @@ describe('Local PR Reviewer AI evaluations', () => {
         assert.strictEqual(result.riskLevel, 'LOW', 'Risk level should be flagged as LOW');
         assert.strictEqual(result.securityVulnerabilities.length, 0);
     });
+
+    it('Detects missing test files correctly', { timeout: 30000 }, async () => {
+        const diffPath = path.join(fixturesDir, 'missing-tests.diff');
+        const diffContent = fs.readFileSync(diffPath, "utf-8");
+
+        // Pass a source file that has no matching test file in the list
+        const changedFiles = ['src/service.ts'];
+
+        const result = await reviewCodeDiff(diffContent, changedFiles);
+
+        assert.ok(result);
+        assert.ok(
+            result.missingTestFiles.includes('src/service.ts'),
+            'Should flag src/service.ts as missing a corresponding test file'
+        );
+    });
 });

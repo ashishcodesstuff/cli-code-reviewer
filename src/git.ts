@@ -31,7 +31,7 @@ function getFilteredChangedFiles(files: string[]): string[] {
 
 function getLocalDiff(targetBranch = "HEAD~1"): GitChanges {
     try {
-        const diff = execSync(`git diff ${targetBranch}`, { encoding: "utf-8" });
+        const diff = execSync(`git diff --cached`, { encoding: "utf-8" });
         const filesOutput = execSync(`git diff --name-only ${targetBranch}`, {encoding: "utf-8"});
 
         const changedFiles = filesOutput ? filesOutput.split('\n').filter(Boolean) : [];

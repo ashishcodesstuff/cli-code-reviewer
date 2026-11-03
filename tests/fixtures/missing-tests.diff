@@ -1,0 +1,15 @@
+diff --git a/src/service.ts b/src/service.ts
+index 8ab12cd..4f9e102 100644
+--- a/src/service.ts
++++ b/src/service.ts
+@@ -1,5 +1,8 @@
+ export class DataService {
+     constructor(private endpoint: string) {}
+ 
+-    public getData() {
+-    }
++    public async fetchData(): Promise<any> {
++        const response = await fetch(this.endpoint);
++        return await response.json();
++    }
+ }

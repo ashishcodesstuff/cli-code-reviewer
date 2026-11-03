@@ -9,15 +9,26 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+function printHeader() {
+    console.log(kleur.cyan().bold('\n============================================================'));
+    // Background highlight makes the title command-line prominent and bold
+    console.log(kleur.bgCyan().black().bold('             🛡️   LOCAL AI PR REVIEWER   🛡️              '));
+    console.log(kleur.cyan().bold('============================================================'));
+    console.log(kleur.gray('        Privacy-First Git Security & Quality Guard          '));
+    console.log(kleur.cyan().bold('------------------------------------------------------------\n'));
+}
+
 async function main() {
+    printHeader();
+
     const spinner = ora('🤖 Scanning local git changes...').start();
 
-
-    const {diff, changedFiles} = getLocalDiff('main');
+    const { diff, changedFiles } = getLocalDiff('main');
 
     if (!diff) {
         spinner.succeed(kleur.green('🌳 Working tree is clean. No code changes to review.'));
-        process.exit(0);
+        process.exitCode = 0;
+        return;
     }
 
     spinner.text = '🤖 Sending diff to the Local LLM for security and quality review...';
@@ -28,10 +39,22 @@ async function main() {
 
         const framedOutput = createPrettifiedResult(reviewResult);
         console.log(framedOutput);
+
+        if (reviewResult.riskLevel === "HIGH" || reviewResult.riskLevel === "MEDIUM") {
+            console.error(kleur.red('\n❌ Commit blocked due to HIGH/MEDIUM risk findings.\n'));
+            process.stdout.write('', () => {
+                process.exit(1);
+            });
+            return;
+        }
+
+        process.exitCode = 0;
     } catch (error: any) {
-        spinner.fail(kleur.red('Review failed.'));
-        console.error(kleur.red(error.message));
-        process.exit(1);
+        spinner.stop();
+        console.error(kleur.red('Review failed: ' + error.message));
+        process.stdout.write('', () => {
+            process.exit(1);
+        });
     }
 }
 
