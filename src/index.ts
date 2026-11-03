@@ -40,7 +40,7 @@ async function main() {
         const framedOutput = createPrettifiedResult(reviewResult);
         console.log(framedOutput);
 
-        if (reviewResult.riskLevel === "HIGH" || reviewResult.riskLevel === "MEDIUM") {
+        if (reviewResult.result.riskLevel === "HIGH" || reviewResult.result.riskLevel === "MEDIUM") {
             console.error(kleur.red('\n❌ Commit blocked due to HIGH/MEDIUM risk findings.\n'));
             process.stdout.write('', () => {
                 process.exit(1);

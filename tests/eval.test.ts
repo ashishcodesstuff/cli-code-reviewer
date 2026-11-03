@@ -18,9 +18,9 @@ describe('Local PR Reviewer AI evaluations', () => {
 
         const result = await reviewCodeDiff(diffContent, changedFiles);
 
-        assert.strictEqual(result.riskLevel, 'HIGH', 'Risk level should be flagged as HIGH');
+        assert.strictEqual(result.result.riskLevel, 'HIGH', 'Risk level should be flagged as HIGH');
         assert.ok(
-            result.securityVulnerabilities.length > 0,
+            result.result.securityVulnerabilities.length > 0,
             'Should detect at least one security vulnerability'
         );
     });
@@ -34,8 +34,8 @@ describe('Local PR Reviewer AI evaluations', () => {
         const result = await reviewCodeDiff(diffContent, changedFiles);
 
         assert.ok(result);
-        assert.strictEqual(result.riskLevel, 'LOW', 'Risk level should be flagged as LOW');
-        assert.strictEqual(result.securityVulnerabilities.length, 0);
+        assert.strictEqual(result.result.riskLevel, 'LOW', 'Risk level should be flagged as LOW');
+        assert.strictEqual(result.result.securityVulnerabilities.length, 0);
     });
 
     it('Detects missing test files correctly', { timeout: 30000 }, async () => {
@@ -49,7 +49,7 @@ describe('Local PR Reviewer AI evaluations', () => {
 
         assert.ok(result);
         assert.ok(
-            result.missingTestFiles.includes('src/service.ts'),
+            result.result.missingTestFiles.includes('src/service.ts'),
             'Should flag src/service.ts as missing a corresponding test file'
         );
     });

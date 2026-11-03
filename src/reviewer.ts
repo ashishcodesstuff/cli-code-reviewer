@@ -12,14 +12,26 @@ const ReviewSchema = z.object({
     missingTestFiles: z.array(z.string()),
 });
 
-export type ReviewResult = z.infer<typeof ReviewSchema>;
+export interface ReviewMetrics {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+    durationMs: number;
+};
+
+export interface FullReviewResponse {
+    result: z.infer<typeof ReviewSchema>,
+    metrics: ReviewMetrics,
+};
 
 const client = new OpenAI({
     baseURL: process.env.SERVER_URL,
     apiKey: process.env.SERVER_API_KEY,
 });
 
-async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<ReviewResult> {
+async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<FullReviewResponse> {
+    const startTime = performance.now();
+
     // PREFLIGHT CHECK FOR LOADED MODEL 
     try {
         const modelsResponse = await client.models.list();
@@ -83,6 +95,9 @@ You are an expert senior software engineer and security auditor.
         temperature: 0.1,
     });
 
+    const endTime = performance.now();
+    const durationMs = Math.round(endTime - startTime);
+
     const rawText = response.choices[0].message.content || '';
     const cleanedText = rawText
         .replace(/```json/g, '')
@@ -107,7 +122,18 @@ You are an expert senior software engineer and security auditor.
             throw new Error(`Schema validation failed: ${JSON.stringify(validationResult.error.format())}`);
         }
 
-        return { ...validationResult.data, missingTestFiles };
+        return {
+            result: {
+                ...validationResult.data,
+                missingTestFiles,
+            },
+            metrics: {
+                promptTokens: response.usage?.prompt_tokens ?? 0,
+                completionTokens: response.usage?.completion_tokens ?? 0,
+                totalTokens: response.usage?.total_tokens ?? 0,
+                durationMs,
+            }
+        };
     } catch (error) {
         throw new Error(`Failed to parse or validate LLM response as JSON. Raw output:\n${rawText}\n\nError: ${error}`);
     }
