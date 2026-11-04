@@ -33,7 +33,7 @@ export interface FullReviewResponse {
 };
 
 const client = new OpenAI({
-    // baseURL: process.env.SERVER_URL,
+    baseURL: process.env.SERVER_URL,
     apiKey: process.env.SERVER_API_KEY,
 });
 
