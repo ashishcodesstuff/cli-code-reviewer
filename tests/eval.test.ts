@@ -48,9 +48,37 @@ describe('Local PR Reviewer AI evaluations', () => {
         const result = await reviewCodeDiff(diffContent, changedFiles);
 
         assert.ok(result);
+        const missingTests = result.result.missingTestFiles ?? [];
         assert.ok(
-            result.result.missingTestFiles.includes('src/service.ts'),
+            missingTests.includes('src/service.ts'),
             'Should flag src/service.ts as missing a corresponding test file'
         );
+    });
+
+    it('Detects and generates remediations for fixable code', { timeout: 30000 }, async () => {
+        const diffPath = path.join(fixturesDir, 'remediation-fix.diff'); // or your target fixture file
+        const diffContent = fs.readFileSync(diffPath, "utf-8");
+
+        const changedFiles = ['src/utils.ts'];
+
+        const result = await reviewCodeDiff(diffContent, changedFiles);
+
+        assert.ok(result);
+        assert.ok(
+            Array.isArray(result.result.remediations),
+            'Result should contain a remediations array'
+        );
+        assert.ok(
+            result.result.remediations.length > 0,
+            'Should suggest at least one code remediation'
+        );
+
+        // Verify the shape of the remediation object
+        if (result.result.remediations && result.result.remediations.length > 0) {
+            const firstRemediation = result.result.remediations[0];
+            assert.ok(firstRemediation.filePath, 'Remediation must specify a file path');
+            assert.ok(firstRemediation.originalCode, 'Remediation must specify original code to replace');
+            assert.ok(firstRemediation.suggestedEdit, 'Remediation must specify suggested replacement code');
+        }
     });
 });

@@ -6,6 +6,7 @@ import kleur from "kleur";
 import ora from 'ora';
 import { createPrettifiedResult } from "./createPrettifiedResult.js";
 import dotenv from 'dotenv';
+import { promptUserForRemediation } from "./promptUserForRemediation.js";
 
 dotenv.config();
 
@@ -39,6 +40,11 @@ async function main() {
 
         const framedOutput = createPrettifiedResult(reviewResult);
         console.log(framedOutput);
+
+        const remediations = reviewResult.result.remediations || [];
+        if (remediations && remediations.length > 0) {
+            await promptUserForRemediation(remediations);
+        }
 
         if (reviewResult.result.riskLevel === "HIGH" || reviewResult.result.riskLevel === "MEDIUM") {
             console.error(kleur.red('\n❌ Commit blocked due to HIGH/MEDIUM risk findings.\n'));

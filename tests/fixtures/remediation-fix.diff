@@ -1,0 +1,9 @@
+diff --git a/src/utils.ts b/src/utils.ts
+--- a/src/utils.ts
++++ b/src/utils.ts
+@@ -10,3 +10,4 @@
+ export function generateVerificationCode() {
+-    return "123456";
++    const insecureToken = Math.random().toString(36).substring(2);
++    return insecureToken;
+ }

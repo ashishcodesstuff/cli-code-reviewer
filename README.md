@@ -14,6 +14,8 @@ Designed for developers who want automated guardrails and security checks on eve
 * **Strict Security Guardrails & File Attribution:** Instantly flags hardcoded API keys, sensitive credentials, and common vulnerabilities, explicitly binding each finding to its exact file path.
 * **Robust JSON Enforcement:** Uses advanced regex sanitization paired with **Zod** schema validation to eliminate parsing errors from local models.
 * **Modern Terminal UI:** Built with bold branded headers, `kleur`, and `ora` for a clean, color-coded, professional developer experience.
+* **Interactive Human-in-the-Loop Auto-Remediation:** Automatically detects issues, formulates precise code replacements (`originalCode` -> `suggestedEdit`), and prompts you in the terminal to apply them directly to your workspace.
+* **Safe Commit Aborting:** When fixes are applied, the CLI automatically halts the commit `(process.exit(1))` so you can inspect the changes via `git diff`, re-stage, and commit with confidence.
 * **Demo Video Link:** https://youtu.be/ywLPHzqt1Gs
 
 ---
@@ -86,10 +88,21 @@ To enforce automated code reviews and security scans on every git commit, config
    #!/usr/bin/env sh
    . "$(dirname -- "$0")/_/husky.sh"
 
+   exec < /dev/tty
    local-pr-review
    ```
 
-When you attempt to commit code, the tool renders its branded header, scans your staged diff locally, attributes findings to exact files, and safely blocks the commit if any high or medium-risk issues are detected!
+When you attempt to commit code, the tool renders its branded header, scans your staged diff locally, attributes findings to exact files, suggest remediations and safely blocks the commit if any high or medium-risk issues are detected!
+
+---
+
+## 🧪 Running Tests
+
+The test suite evaluates risk levels, missing test files, and structured remediation outputs using fixtures:
+
+```bash
+npm run eval
+```
 
 ---
 
@@ -99,8 +112,9 @@ When you attempt to commit code, the tool renders its branded header, scans your
 .
 ├── src/
 │   ├── index.ts                       # CLI entry point, branded header, spinner, and terminal UI
-│   ├── createPrettifiedResult.ts      # helper function
-│   ├── findMissingTestFiles.ts        # helper function
+|   |── promptUserForRemediation.ts    # helper function to prompt user input for applying remediation
+│   ├── createPrettifiedResult.ts      # helper function to print pretiffied result in console
+│   ├── findMissingTestFiles.ts        # helper function to check missing test files for passed diff
 │   ├── git.ts                         # Git wrapper capturing staged diffs and modified file lists
 │   └── reviewer.ts                    # Core engine: pre-flight health check, prompt engineering, Zod validation
 ├── tests/
