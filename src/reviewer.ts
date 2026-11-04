@@ -126,16 +126,6 @@ You are an expert senior software engineer and security auditor.
         .replace(/```/g, '')
         .replace(/[\u00A0\u200B]/g, ' ')
         .trim();
-    //     console.log(cleanedText)
-
-    // const jsonStartIndex = cleanedText.indexOf('{');
-    // const jsonEndIndex = cleanedText.indexOf('}');
-
-    // if (jsonStartIndex === -1 || jsonEndIndex === 1) {
-    //     throw new Error(`No valid JSON object found in LLM response:\n${rawText}`);
-    // }
-
-    // const jsonString = cleanedText.substring(jsonStartIndex, jsonEndIndex + 1);
 
     try {
         const parsedJson = JSON.parse(cleanedText);
