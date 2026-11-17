@@ -3,10 +3,12 @@ import OpenAI from "openai";
 import { findMissingTestFiles } from "./findMissingTestFiles.js";
 import { createPrompt } from "./createPrompt.js";
 import { getEnvConfig } from "./importEnvConfig.js";
+import { splitDiffIntoChunks } from "./diffChunker.js";
+import { processAndMergeChunks } from "./processAndMergeChunks.js";
 
 const config = getEnvConfig();
 
-const ReviewSchema = z.object({
+export const ReviewSchema = z.object({
     riskLevel: z.enum(['LOW', 'MEDIUM', 'HIGH']),
     securityVulnerabilities: z.array(z.string()),
     suggestedRefactors: z.array(z.string()),
@@ -34,12 +36,12 @@ export interface FullReviewResponse {
 };
 
 const client = new OpenAI({
-    // baseURL: config.serverUrl,
+    baseURL: config.serverUrl,
     apiKey: config.apiKey,
 });
 
 async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<FullReviewResponse> {
-    const startTime = performance.now();
+    
 
     // PREFLIGHT CHECK FOR LOADED MODEL 
     try {
@@ -58,7 +60,23 @@ async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<Ful
         )
     }
 
-    const missingTestFiles = findMissingTestFiles(changedFiles);
+    const chunks = splitDiffIntoChunks(diff);
+    if (chunks.length <= 3) {
+        const result = await executeReviewCodeDiff(diff, changedFiles);
+        return result;
+    } else {
+        const chunkResults: FullReviewResponse[] = [];
+        for (const chunk of chunks) {
+            const res = await executeReviewCodeDiff(chunk, changedFiles);
+            chunkResults.push(res);
+        }
+
+        return processAndMergeChunks(chunkResults);
+    }
+}
+
+async function executeReviewCodeDiff(diff: string, changedFiles: string[]): Promise<FullReviewResponse> {
+    const startTime = performance.now();
 
     const response = await client.chat.completions.create({
         model: config.reviewerModel as string,
@@ -70,8 +88,7 @@ async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<Ful
         response_format: { type: "json_object" }
     });
 
-    const endTime = performance.now();
-    const durationMs = Math.round(endTime - startTime);
+    const missingTestFiles = findMissingTestFiles(changedFiles);
 
     try {
         const rawText = response.choices[0].message.content || '';
@@ -88,6 +105,9 @@ async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<Ful
             throw new Error(`Schema validation failed: ${JSON.stringify(validationResult.error.format())}`);
         }
 
+        const endTime = performance.now();
+        const durationMs = Math.round(endTime - startTime);
+
         return {
             result: {
                 ...validationResult.data,
@@ -97,7 +117,7 @@ async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<Ful
                 promptTokens: response.usage?.prompt_tokens ?? 0,
                 completionTokens: response.usage?.completion_tokens ?? 0,
                 totalTokens: response.usage?.total_tokens ?? 0,
-                durationMs,
+                durationMs
             }
         };
     } catch (error) {

@@ -1,108 +1,150 @@
-# 🛡️ Local AI PR Reviewer
+# 🛡️ AI PR Reviewer
 
-A lightning-fast, privacy-first CLI tool that performs automated code reviews, security scans, and test coverage checks locally on your machine using any OpenAI-compatible LLM endpoint (such as LM Studio, Ollama, or vLLM). 
+A CLI that reviews your staged git changes with an LLM before you commit. It runs security scans, flags missing tests, suggests refactors, and can apply fixes with your approval. It works with any OpenAI-compatible endpoint, so **you decide where your code goes**: a model on your own machine (LM Studio, Ollama, vLLM) or a hosted API.
 
-Designed for developers who want automated guardrails and security checks on every git commit without leaking proprietary code to third-party cloud services.
+> **Learning project.** This was built to learn AI-engineering patterns: structured LLM output, schema validation, hybrid deterministic + LLM checks, and human-in-the-loop design. See [Known Limitations](#-known-limitations).
+
+---
+
+## 🔒 Privacy: You Choose the Endpoint
+
+The tool sends your staged diff to whatever endpoint you configure:
+
+| Mode | How to enable | Where your diff goes |
+| --- | --- | --- |
+| **Local** | Set `SERVER_URL` to a local server (e.g. `http://localhost:1234/v1`) | Stays on your machine. Works fully offline. |
+| **Hosted** | Leave `SERVER_URL` unset (uses the OpenAI API) or point it at another hosted provider | Sent to that provider. Check their data-handling terms before using it on proprietary code. |
+
+Both modes use the same code path and the same `.env` file. Switching is a one-line change.
 
 ---
 
 ## ✨ Features
 
-* **100% Local & Privacy-First:** Runs entirely offline using your local LLM inference server. No code ever leaves your machine.
-* **Backend-Agnostic:** Built on standard OpenAI-compatible APIs, allowing you to seamlessly swap models and local runtimes via environment variables.
-* **Hybrid Guardrail Pattern:** Combines deterministic Node.js checks (file path filtering, extension blacklisting, and test file existence validation) with probabilistic AI analysis for deep semantic and security reviews.
-* **Strict Security Guardrails & File Attribution:** Instantly flags hardcoded API keys, sensitive credentials, and common vulnerabilities, explicitly binding each finding to its exact file path.
-* **Robust JSON Enforcement:** Uses advanced regex sanitization paired with **Zod** schema validation to eliminate parsing errors from local models.
-* **Modern Terminal UI:** Built with bold branded headers, `kleur`, and `ora` for a clean, color-coded, professional developer experience.
-* **Interactive Human-in-the-Loop Auto-Remediation:** Automatically detects issues, formulates precise code replacements (`originalCode` -> `suggestedEdit`), and prompts you in the terminal to apply them directly to your workspace.
-* **Safe Commit Aborting:** When fixes are applied, the CLI automatically halts the commit `(process.exit(1))` so you can inspect the changes via `git diff`, re-stage, and commit with confidence.
-* **Demo Video Link:** https://youtu.be/ywLPHzqt1Gs
+* **Local or Hosted, Your Call:** Built on the standard OpenAI-compatible API. Use LM Studio, Ollama, vLLM, or a hosted provider by changing environment variables.
+* **Hybrid Guardrail Pattern:** Deterministic Node.js checks (file filtering, extension and lockfile blacklisting, test-file detection) run alongside probabilistic LLM analysis for semantic and security review.
+* **Security Review with File Attribution:** Flags hardcoded secrets, weak cryptography, injection risks, and missing authorization, and ties each finding to its file path.
+* **Schema-Validated Output:** Requests JSON from the model, sanitizes the response, and validates it against a **Zod** schema, so malformed output fails loudly instead of silently.
+* **Config Validation:** Environment variables are validated with Zod at startup, with clear error messages.
+* **Prompt-Injection Hardening (best effort):** The diff is wrapped in `<untrusted_diff>` tags and the model is told to treat it as data, not instructions.
+* **Large Diff Handling:** Large diffs are split into chunks and the results are merged. <!-- TODO: confirm the exact chunking behavior (per file? token budget?) and describe it here -->
+* **Interactive Auto-Remediation:** The model proposes exact replacements (`originalCode` → `suggestedEdit`) and asks before applying anything to your workspace.
+* **Safe Commit Aborting:** After fixes are applied, the commit is halted (`process.exit(1)`) so you can inspect `git diff`, re-stage, and commit with confidence.
+* **Terminal UI:** Color-coded output with `kleur`, `ora`, and `boxen`.
+* **Demo Video:** https://youtu.be/ywLPHzqt1Gs
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Language:** TypeScript (Node.js ESM)
+* **Language:** TypeScript (Node.js, ESM)
 * **Validation:** Zod
-* **AI Integration:** OpenAI SDK configured for local endpoints
-* **Terminal UI:** Kleur, Ora
+* **AI Integration:** OpenAI SDK (works with any OpenAI-compatible endpoint)
+* **Terminal UI:** kleur, ora, boxen, enquirer
 
 ---
 
-## 🚀 Getting Started & Installation
+## 🚀 Getting Started
 
 ### Prerequisites
 
-1. **Node.js** (v18+ recommended)
-2. A local LLM server running an OpenAI-compatible API (e.g., LM Studio, Ollama, vLLM, or LocalAI) with an open-weight code model loaded (e.g., `qwen2.5-coder`).
+1. **Node.js 22+** (required by the current versions of the OpenAI SDK, `ora`, and `boxen`).
+2. An LLM endpoint, either:
+   * **Local:** a server with an OpenAI-compatible API (LM Studio, Ollama, vLLM, LocalAI) and a code-capable open-weight model loaded (e.g. `qwen2.5-coder`), or
+   * **Hosted:** an API key for an OpenAI-compatible provider.
 
-### 1. Build and Link the CLI (In your CLI project repository)
-Clone the repository, compile the TypeScript source code, and link the package globally:
+### Build and Link the CLI
+
+Clone this repository, then:
 
 ```bash
-# Install dependencies
 npm install
-
-# Build the project (compiles TS to JS in dist/)
-npm run build
-
-# Link the package globally so it's accessible anywhere in your terminal
-npm link
+npm run build   # compiles TypeScript to dist/
+npm link        # makes `local-pr-review` available globally
 ```
 
 ---
 
 ## ⚙️ Configuration
 
-### Environment Variables (In your Target Project)
-This tool relies on your local LLM server. In the **source project repository** where you want to run code reviews, create a `.env` file at the root directory:
+Create a `.env` file in the root of the **project you want to review** (not in this repo):
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `REVIEWER_MODEL` | Yes | Model name to use, as your server or provider lists it. |
+| `SERVER_API_KEY` | Yes | API key. Local servers usually ignore it, but a non-empty placeholder is still required. |
+| `SERVER_URL` | No | Base URL of an OpenAI-compatible endpoint. If unset, the OpenAI API is used. |
+
+### Example: local model (LM Studio)
 
 ```env
-# .env (place this in the root of the project you want to scan)
-SERVER_URL=<your-server-endpoint>
-REVIEWER_MODEL=<your-local-llm-model-codename>
-SERVER_API_KEY=<your-server-secure-api-key>
+SERVER_URL=http://localhost:1234/v1
+REVIEWER_MODEL=qwen2.5-coder
+SERVER_API_KEY=local
 ```
+
+### Example: local model (Ollama)
+
+```env
+SERVER_URL=http://localhost:11434/v1
+REVIEWER_MODEL=qwen2.5-coder
+SERVER_API_KEY=ollama
+```
+
+### Example: hosted (OpenAI API)
+
+```env
+# SERVER_URL left unset: requests go to the OpenAI API
+REVIEWER_MODEL=<model-name>
+SERVER_API_KEY=<your-openai-api-key>
+```
+
+> ⚠️ **Heads-up:** if `SERVER_URL` is missing or misspelled, your diff is sent to the hosted default. When privacy matters, check that it points where you expect.
+
+Never commit your `.env` file. Add it to `.gitignore`.
 
 ---
 
-## 💻 Usage & Automation
+## 💻 Usage
 
-### 1. Manual Execution
-Run the CLI manually inside any git repository to scan your current staged changes:
+### Manual run
+
+Inside any git repository with staged changes:
+
 ```bash
 local-pr-review
 ```
 
-### 2. Set Up Automated Pre-Commit Hook (Husky)
-To enforce automated code reviews and security scans on every git commit, configure Husky in your target project repository:
+### Automatic pre-commit hook (Husky)
 
-1. **Initialize Husky:**
+1. Initialize Husky in your target project:
+
    ```bash
    npx husky init
    ```
 
-2. **Configure the Hook:**
-   Open `.husky/pre-commit` and ensure it executes your command:
-   ```bash
-   #!/usr/bin/env sh
-   . "$(dirname -- "$0")/_/husky.sh"
+2. Edit `.husky/pre-commit` so it contains:
 
+   ```sh
    exec < /dev/tty
    local-pr-review
    ```
 
-When you attempt to commit code, the tool renders its branded header, scans your staged diff locally, attributes findings to exact files, suggest remediations and safely blocks the commit if any high or medium-risk issues are detected!
+   (`exec < /dev/tty` reconnects the terminal so the interactive prompt works inside a git hook.)
+
+On each commit the tool scans your staged diff, prints findings grouped by file, offers remediations, and blocks the commit if it finds HIGH or MEDIUM risk issues.
 
 ---
 
-## 🧪 Running Tests
+## 🧪 Running Evals
 
-The test suite evaluates risk levels, missing test files, and structured remediation outputs using fixtures:
+The eval suite runs fixture diffs through the **real model you have configured** and checks risk levels, missing-test detection, and remediation output:
 
 ```bash
 npm run eval
 ```
+
+Because LLM output is non-deterministic, results can vary between runs and between models. You need a working `.env` before running it.
 
 ---
 
@@ -111,23 +153,40 @@ npm run eval
 ```text
 .
 ├── src/
-│   ├── index.ts                       # CLI entry point, branded header, spinner, and terminal UI
-|   |── promptUserForRemediation.ts    # helper function to prompt user input for applying remediation
-│   ├── createPrettifiedResult.ts      # helper function to print pretiffied result in console
-│   ├── findMissingTestFiles.ts        # helper function to check missing test files for passed diff
-│   ├── git.ts                         # Git wrapper capturing staged diffs and modified file lists
-│   └── reviewer.ts                    # Core engine: pre-flight health check, prompt engineering, Zod validation
+│   ├── index.ts                      # CLI entry point, header, spinner, terminal UI
+│   ├── importEnvConfig.ts            # Loads and validates environment variables (Zod)
+│   ├── diffChunker.ts                # Logically splits the diff content based on file
+│   ├── processAndMergeChunks.ts      # Merge the AI reviewed code chunks into a single printable object
+│   ├── git.ts                        # Captures staged diff and file list; filters binaries and lockfiles
+│   ├── reviewer.ts                   # Core engine: model pre-flight check, LLM call, JSON parsing, Zod validation
+│   ├── createPrompt.ts               # Builds the system and user prompts
+│   ├── findMissingTestFiles.ts       # Deterministic check for missing test files
+│   ├── createPrettifiedResult.ts     # Formats review results for the terminal
+│   └── promptUserForRemediation.ts   # Interactive prompt that applies suggested fixes
 ├── tests/
-│   ├── fixtures/                      # dummy data for test cases
-│   ├── eval.test.ts                   # test function
-├── package.json                       # Dependencies, build scripts, and bin configuration
-├── tsconfig.json                      # TypeScript NodeNext ESM compiler configurations
-└── README.md                          # Project documentation
-└── architecture.md                    # Project architecture
+│   ├── fixtures/                     # Sample diffs for evals
+│   └── eval.test.ts                  # Model evaluations
+├── architecture.md                   # Architecture and data flow
+├── package.json                      # Dependencies, scripts, bin entry
+└── tsconfig.json                     # TypeScript (NodeNext ESM) config
 ```
+
+See [architecture.md](./architecture.md) for the data-flow diagram.
+
+---
+
+## ⚠️ Known Limitations
+
+This is a learning project, and these are known gaps:
+
+* **LLM output is probabilistic.** It can miss real issues and flag harmless code. Treat results as a second pair of eyes, not a replacement for review or a dedicated secret scanner.
+* **Auto-remediation is a string replace.** If the model's `originalCode` doesn't match the file exactly, the fix is skipped. Always review changes with `git diff`.
+* **Prompt injection is only partly mitigated.** The `<untrusted_diff>` wrapper helps but is not a guarantee.
+* **Interactive only.** The prompt needs a terminal (`/dev/tty`), so there is no non-interactive CI mode and Windows is untested.
+* **Quality depends on the model.** Small local models are weaker at security reasoning than larger ones.
 
 ---
 
 ## 📜 License
 
-This project is open-source under the **GNU GPL-3.0-or-later** license.
+Open-source under the **GNU GPL-3.0-or-later** license.
