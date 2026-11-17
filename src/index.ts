@@ -32,7 +32,7 @@ async function main() {
         return;
     }
 
-    spinner.text = '🤖 Sending diff to the Local LLM for security and quality review...';
+    spinner.text = '🤖 Sending diff for security and quality review...';
 
     try {
         const reviewResult = await reviewCodeDiff(diff, changedFiles);
