@@ -2,9 +2,9 @@ import { z } from "zod";
 import OpenAI from "openai";
 import { findMissingTestFiles } from "./findMissingTestFiles.js";
 import { createPrompt } from "./createPrompt.js";
-import dotenv from "dotenv";
+import { getEnvConfig } from "./importEnvConfig.js";
 
-dotenv.config();
+const config = getEnvConfig();
 
 const ReviewSchema = z.object({
     riskLevel: z.enum(['LOW', 'MEDIUM', 'HIGH']),
@@ -34,8 +34,8 @@ export interface FullReviewResponse {
 };
 
 const client = new OpenAI({
-    baseURL: process.env.SERVER_URL,
-    apiKey: process.env.SERVER_API_KEY,
+    // baseURL: config.serverUrl,
+    apiKey: config.apiKey,
 });
 
 async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<FullReviewResponse> {
@@ -61,7 +61,7 @@ async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<Ful
     const missingTestFiles = findMissingTestFiles(changedFiles);
 
     const response = await client.chat.completions.create({
-        model: process.env.REVIEWER_MODEL as string,
+        model: config.reviewerModel as string,
         messages: [
             createPrompt("system", changedFiles, null),
             createPrompt("user", null, diff),
