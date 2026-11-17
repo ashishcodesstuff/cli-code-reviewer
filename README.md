@@ -25,9 +25,9 @@ Both modes use the same code path and the same `.env` file. Switching is a one-l
 * **Hybrid Guardrail Pattern:** Deterministic Node.js checks (file filtering, extension and lockfile blacklisting, test-file detection) run alongside probabilistic LLM analysis for semantic and security review.
 * **Security Review with File Attribution:** Flags hardcoded secrets, weak cryptography, injection risks, and missing authorization, and ties each finding to its file path.
 * **Schema-Validated Output:** Requests JSON from the model, sanitizes the response, and validates it against a **Zod** schema, so malformed output fails loudly instead of silently.
-* **Config Validation:** Environment variables are validated with Zod at startup, with clear error messages.
+* **Config Validation:** Environment variables are validated with Zod at startup, and a missing or invalid value is reported by name.
 * **Prompt-Injection Hardening (best effort):** The diff is wrapped in `<untrusted_diff>` tags and the model is told to treat it as data, not instructions.
-* **Large Diff Handling:** Large diffs are split into chunks and the results are merged. <!-- TODO: confirm the exact chunking behavior (per file? token budget?) and describe it here -->
+* **Large Diff Handling:** When more than 3 files are staged, the diff is reviewed one file at a time and the results are merged (highest risk wins, findings de-duplicated, token counts summed). Diffs touching 3 files or fewer are sent in a single request.
 * **Interactive Auto-Remediation:** The model proposes exact replacements (`originalCode` → `suggestedEdit`) and asks before applying anything to your workspace.
 * **Safe Commit Aborting:** After fixes are applied, the commit is halted (`process.exit(1)`) so you can inspect `git diff`, re-stage, and commit with confidence.
 * **Terminal UI:** Color-coded output with `kleur`, `ora`, and `boxen`.
@@ -132,7 +132,7 @@ local-pr-review
 
    (`exec < /dev/tty` reconnects the terminal so the interactive prompt works inside a git hook.)
 
-On each commit the tool scans your staged diff, prints findings grouped by file, offers remediations, and blocks the commit if it finds HIGH or MEDIUM risk issues.
+On each commit the tool scans your staged diff, prints a report with findings attributed to files, and offers remediations. It blocks the commit if it finds HIGH or MEDIUM risk issues, and after any remediation prompt so you can review and re-stage.
 
 ---
 
@@ -146,6 +146,8 @@ npm run eval
 
 Because LLM output is non-deterministic, results can vary between runs and between models. You need a working `.env` before running it.
 
+The same file also contains unit tests for diff splitting and chunk merging. They don't call the model, but they still need a valid `.env` because the file imports the reviewer module.
+
 ---
 
 ## 📂 Project Structure
@@ -155,8 +157,8 @@ Because LLM output is non-deterministic, results can vary between runs and betwe
 ├── src/
 │   ├── index.ts                      # CLI entry point, header, spinner, terminal UI
 │   ├── importEnvConfig.ts            # Loads and validates environment variables (Zod)
-│   ├── diffChunker.ts                # Logically splits the diff content based on file
-│   ├── processAndMergeChunks.ts      # Merge the AI reviewed code chunks into a single printable object
+│   ├── diffChunker.ts                # Splits a diff into per-file chunks
+│   ├── processAndMergeChunks.ts      # Merges per-file review results into one report
 │   ├── git.ts                        # Captures staged diff and file list; filters binaries and lockfiles
 │   ├── reviewer.ts                   # Core engine: model pre-flight check, LLM call, JSON parsing, Zod validation
 │   ├── createPrompt.ts               # Builds the system and user prompts
@@ -165,7 +167,7 @@ Because LLM output is non-deterministic, results can vary between runs and betwe
 │   └── promptUserForRemediation.ts   # Interactive prompt that applies suggested fixes
 ├── tests/
 │   ├── fixtures/                     # Sample diffs for evals
-│   └── eval.test.ts                  # Model evaluations
+│   └── eval.test.ts                  # Model evals plus chunking/merge unit tests
 ├── architecture.md                   # Architecture and data flow
 ├── package.json                      # Dependencies, scripts, bin entry
 └── tsconfig.json                     # TypeScript (NodeNext ESM) config
@@ -181,6 +183,8 @@ This is a learning project, and these are known gaps:
 
 * **LLM output is probabilistic.** It can miss real issues and flag harmless code. Treat results as a second pair of eyes, not a replacement for review or a dedicated secret scanner.
 * **Auto-remediation is a string replace.** If the model's `originalCode` doesn't match the file exactly, the fix is skipped. Always review changes with `git diff`.
+* **Chunking is by file count, not token budget.** Diffs touching 3 files or fewer are sent whole, and a single file is never split, so one very large file can still exceed the model's context window.
+* **Any offered fix halts the commit.** If the model proposes remediations, the commit is stopped after the prompt (whether you accept or decline), even when the risk level is LOW.
 * **Prompt injection is only partly mitigated.** The `<untrusted_diff>` wrapper helps but is not a guarantee.
 * **Interactive only.** The prompt needs a terminal (`/dev/tty`), so there is no non-interactive CI mode and Windows is untested.
 * **Quality depends on the model.** Small local models are weaker at security reasoning than larger ones.

@@ -21,20 +21,27 @@ AI PR Reviewer reads your **staged git diff**, sends it to an OpenAI-compatible 
                 ├─► No reviewable changes ──► "Working tree is clean", exit 0
                 │
                 ▼ (diff text + changed-file list)
-┌────────────────────────────────────────────────────────────────────────┐
-│                      src/reviewer.ts · reviewCodeDiff()                 │
-│                                                                        │
-│  1. Preflight        client.models.list() to confirm the server is up  │
-│  2. Deterministic    findMissingTestFiles(changedFiles)  (checks disk) │
-│  3. Prompt           createPrompt(): system rules + diff wrapped in    │
-│                      <untrusted_diff> tags                             │
-│  4. LLM call         chat.completions.create → SERVER_URL endpoint     │
-│                      (temperature 0.1, response_format: json_object)   │
-│  5. Parse + validate strip code fences → JSON.parse → Zod ReviewSchema │
-│  6. Merge            deterministic missingTestFiles overwrites the     │
-│                      model's list; token/latency metrics attached      │
-└───────────────┬────────────────────────────────────────────────────────┘
-                │  Any failure above → "Review failed: …", exit 1
+┌──────────────────────────────────────────────────────────────────────────┐
+│                 src/reviewer.ts · reviewCodeDiff()                       │
+│                                                                          │
+│  1. Preflight   client.models.list() once, to confirm the server is up   │
+│  2. Chunking    src/diffChunker.ts splits the diff per file              │
+│                   ≤ 3 files → one request with the whole diff            │
+│                   > 3 files → one request per file, run sequentially     │
+│  3. Each request (executeReviewCodeDiff):                                │
+│       a. findMissingTestFiles(changedFiles)  (deterministic, checks disk)│
+│       b. createPrompt(): rules + diff wrapped in <untrusted_diff> tags   │
+│       c. chat.completions.create → SERVER_URL endpoint                   │
+│          (temperature 0.1, response_format: json_object)                 │
+│       d. strip code fences → JSON.parse → Zod ReviewSchema               │
+│       e. deterministic missingTestFiles overwrites the model's list      │
+│  4. Merge       src/processAndMergeChunks.ts (only when chunked)         │
+│                   highest risk wins · findings de-duplicated ·           │
+│                   remediations de-duplicated by file + original code ·   │
+│                   token and time metrics summed                          │
+└───────────────┬──────────────────────────────────────────────────────────┘
+                │  Any failure above (including any one chunk)
+                │  → "Review failed: …", exit 1
                 ▼ FullReviewResponse { result, metrics }
 ┌──────────────────────────────────┐
 │ src/createPrettifiedResult.ts    │ ──► Formats the report (kleur + boxen); index.ts prints it
@@ -69,27 +76,31 @@ AI PR Reviewer reads your **staged git diff**, sends it to an OpenAI-compatible 
 | --- | --- | --- |
 | No reviewable staged changes | "Working tree is clean" | 0 |
 | Invalid or missing `.env` values | Uncaught error at startup (stack trace) | 1 |
-| Model unreachable, bad response, or schema failure | `Review failed: …` | 1 |
+| Model unreachable, bad response, or schema failure (in any chunk) | `Review failed: …` | 1 |
 | Remediations offered, user applies them | Files patched; review and re-stage | 1 |
 | Remediations offered, user declines or cancels | No files modified | 1 |
 | No remediations, risk HIGH or MEDIUM | Commit blocked | 1 |
 | No remediations, risk LOW | Commit proceeds | 0 |
-
 
 ## Design Decisions
 
 * **Hybrid deterministic + probabilistic.** File filtering and test-file detection are plain code, because they are cheap, repeatable, and don't need a model. The LLM handles what code can't: security reasoning and refactor suggestions.
 * **Schema-validated output.** Local models often wrap or malform JSON. The pipeline requests JSON mode, strips fences, parses, and validates with Zod, so bad output fails loudly instead of flowing into the UI.
 * **Endpoint-agnostic.** The OpenAI SDK talks to any compatible server, so local and hosted models share one code path.
+* **Per-file chunking for larger diffs.** Reviewing one file per request keeps each prompt small, which matters most for local models with short context windows. Results are merged conservatively: the highest risk level wins, so splitting a diff can never lower the verdict.
 * **Human in the loop.** The model proposes exact `originalCode` → `suggestedEdit` replacements, but nothing is written without a confirmation.
 * **Halt after patching.** Applied fixes abort the commit so the developer reviews `git diff` before anything is committed.
 * **Diff treated as untrusted input.** Code under review may contain text that tries to steer the model, so it is delimited and the model is told to treat it as data. This reduces the risk but doesn't remove it.
 
 ## Known Gaps
 
+* **Chunking is by file count, not token budget.** Diffs touching 3 files or fewer are sent whole, and a single file is never split, so one very large file can still exceed the model's context window.
+* **Chunk splitting is not line-anchored.** The splitter matches the text `diff --git ` anywhere, so a changed line that contains that text can split a file's diff in the wrong place.
+* **Per-file review lacks cross-file context.** Each chunk is judged on its own, so issues that span files can be missed.
 * **Remediation patching.** Fixes use string replace on the first match. A snippet that doesn't match exactly is skipped, and replacement text containing `$` sequences (e.g. `$&`) can be altered by JavaScript's replace semantics. The model-provided `filePath` is not restricted to the changed files.
 * **Remediations block even LOW-risk commits.** If the model offers any remediation, the prompt always ends in `process.exit(1)`, whatever the risk level.
 * **Test-file detection is a heuristic.** It checks only for a sibling `name.test.ext` or `name.spec.ext`. Tests in `__tests__/` or a mirrored `tests/` tree are not found.
 * **Preflight error handling.** Any failure of `models.list()` is reported as "Could not connect to local model server", which hides the real cause (for example a rejected API key on a hosted endpoint).
 * **Config errors surface as a stack trace**, because the config loads when `reviewer.ts` is imported, before `main()` runs.
+* **Unit tests need a `.env`.** The chunking and merge tests share a file with the live-model evals, whose imports load the config.
 * **No CI mode.** The flow assumes an interactive terminal.
