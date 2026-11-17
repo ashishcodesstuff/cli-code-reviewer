@@ -32,6 +32,7 @@ Both modes use the same code path and the same `.env` file. Switching is a one-l
 * **Safe Commit Aborting:** After fixes are applied, the commit is halted (`process.exit(1)`) so you can inspect `git diff`, re-stage, and commit with confidence.
 * **Terminal UI:** Color-coded output with `kleur`, `ora`, and `boxen`.
 * **Demo Video:** https://youtu.be/ywLPHzqt1Gs
+* **Demo Video 2:** https://youtu.be/3Mx7Ljnxbcs
 
 ---
 
