@@ -1,6 +1,6 @@
 {
   "name": "cli-code-reviewer",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Zero-leak, local AI code review and security guardrail CLI for developers.",
   "keywords": [
     "ai",
