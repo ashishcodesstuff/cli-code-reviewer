@@ -13,7 +13,7 @@ dotenv.config();
 function printHeader() {
     console.log(kleur.cyan().bold('\n============================================================'));
     // Background highlight makes the title command-line prominent and bold
-    console.log(kleur.bgCyan().black().bold('             🛡️   LOCAL AI PR REVIEWER   🛡️              '));
+    console.log(kleur.bgCyan().black().bold('             🛡️   AI PR REVIEWER   🛡️              '));
     console.log(kleur.cyan().bold('============================================================'));
     console.log(kleur.gray('        Privacy-First Git Security & Quality Guard          '));
     console.log(kleur.cyan().bold('------------------------------------------------------------\n'));
