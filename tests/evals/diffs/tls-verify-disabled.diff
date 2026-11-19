@@ -1,0 +1,10 @@
+diff --git a/src/client.ts b/src/client.ts
+--- a/src/client.ts
++++ b/src/client.ts
+@@ -1,7 +1,7 @@
+ import https from "node:https";
+ 
+ export function fetchReport(host: string) {
+-  return https.request({ host, path: "/report" });
++  return https.request({ host, path: "/report", rejectUnauthorized: false });
+ }

@@ -5,10 +5,10 @@ import { reviewCodeDiff } from "./reviewer.js";
 import kleur from "kleur";
 import ora from 'ora';
 import { createPrettifiedResult } from "./createPrettifiedResult.js";
-import dotenv from 'dotenv';
 import { promptUserForRemediation } from "./promptUserForRemediation.js";
+import { getEnvConfig } from "./importEnvConfig.js";
 
-dotenv.config();
+export const config = getEnvConfig();
 
 function printHeader() {
     console.log(kleur.cyan().bold('\n============================================================'));

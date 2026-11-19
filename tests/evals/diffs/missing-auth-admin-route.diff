@@ -1,0 +1,11 @@
+diff --git a/src/routes.ts b/src/routes.ts
+--- a/src/routes.ts
++++ b/src/routes.ts
+@@ -10,5 +10,5 @@
+ import { requireAdmin } from "./auth";
+ 
+-app.delete("/users/:id", requireAdmin, async (req, res) => {
++app.delete("/users/:id", async (req, res) => {
+   await db.deleteUser(req.params.id);
+   res.sendStatus(204);
+ });

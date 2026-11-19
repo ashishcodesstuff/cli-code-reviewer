@@ -1,0 +1,8 @@
+diff --git a/src/comments.ts b/src/comments.ts
+--- a/src/comments.ts
++++ b/src/comments.ts
+@@ -4,5 +4,5 @@
+ export function renderComment(el: HTMLElement, comment: { text: string }) {
+-  el.textContent = comment.text;
++  el.innerHTML = comment.text;
+ }

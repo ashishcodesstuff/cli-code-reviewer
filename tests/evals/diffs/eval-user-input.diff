@@ -1,0 +1,8 @@
+diff --git a/src/calc.ts b/src/calc.ts
+--- a/src/calc.ts
++++ b/src/calc.ts
+@@ -1,5 +1,5 @@
+ export function calculate(req: Request) {
+-  return safeEvaluate(req.body.expression);
++  return eval(req.body.expression);
+ }

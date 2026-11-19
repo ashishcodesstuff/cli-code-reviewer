@@ -1,12 +1,10 @@
 import { z } from "zod";
-import OpenAI from "openai";
 import { findMissingTestFiles } from "./findMissingTestFiles.js";
 import { createPrompt } from "./createPrompt.js";
-import { getEnvConfig } from "./importEnvConfig.js";
 import { splitDiffIntoChunks } from "./diffChunker.js";
 import { processAndMergeChunks } from "./processAndMergeChunks.js";
-
-const config = getEnvConfig();
+import { client, createChatCompletionResponseFormat } from "./openaiClientAndResponseFormatter.js";
+import { config } from "./index.js";
 
 export const ReviewSchema = z.object({
     riskLevel: z.enum(['LOW', 'MEDIUM', 'HIGH']),
@@ -35,13 +33,8 @@ export interface FullReviewResponse {
     metrics: ReviewMetrics,
 };
 
-const client = new OpenAI({
-    baseURL: config.serverUrl,
-    apiKey: config.apiKey,
-});
-
 async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<FullReviewResponse> {
-    
+
 
     // PREFLIGHT CHECK FOR LOADED MODEL 
     try {
@@ -78,19 +71,20 @@ async function reviewCodeDiff(diff: string, changedFiles: string[]): Promise<Ful
 async function executeReviewCodeDiff(diff: string, changedFiles: string[]): Promise<FullReviewResponse> {
     const startTime = performance.now();
 
-    const response = await client.chat.completions.create({
-        model: config.reviewerModel as string,
-        messages: [
-            createPrompt("system", changedFiles, null),
-            createPrompt("user", null, diff),
-        ],
-        temperature: 0.1,
-        response_format: { type: "json_object" }
-    });
-
-    const missingTestFiles = findMissingTestFiles(changedFiles);
-
     try {
+        const responseFormat = await createChatCompletionResponseFormat();
+
+        const response = await client.chat.completions.create({
+            model: config.reviewerModel as string,
+            messages: [
+                createPrompt("system", changedFiles, null),
+                createPrompt("user", null, diff),
+            ],
+            temperature: 0.1,
+            response_format: responseFormat
+        });
+        const missingTestFiles = findMissingTestFiles(changedFiles);
+
         const rawText = response.choices[0].message.content || '';
         const cleanedText = rawText
             .replace(/```json/g, '')
@@ -120,7 +114,7 @@ async function executeReviewCodeDiff(diff: string, changedFiles: string[]): Prom
                 durationMs
             }
         };
-    } catch (error) {
+    } catch (error: any) {
         throw new Error(`Failed to parse or validate LLM response as JSON. \n\nError: ${error}`);
     }
 }

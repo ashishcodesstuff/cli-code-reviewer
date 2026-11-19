@@ -1,0 +1,12 @@
+diff --git a/src/cart.ts b/src/cart.ts
+--- a/src/cart.ts
++++ b/src/cart.ts
+@@ -1,6 +1,6 @@
+ export function total(items: { price: number }[]): number {
+-  let t = 0;
+-  for (const item of items) t += item.price;
+-  return t;
++  let sum = 0;
++  for (const item of items) sum += item.price;
++  return sum;
+ }

@@ -1,0 +1,544 @@
+{
+  "meta": {
+    "model": "qwen2.5-coder-7b-instruct",
+    "serverHost": "localhost:1234",
+    "runsPerCase": 3,
+    "split": "dev",
+    "filter": "",
+    "caseCount": 10,
+    "commit": "347246d",
+    "dirtyWorkingTree": true,
+    "startedAt": "2026-11-19T14:04:26.963Z"
+  },
+  "summary": {
+    "totalRuns": 30,
+    "failedRuns": 0,
+    "failureRate": 0,
+    "positiveRuns": 18,
+    "caught": 18,
+    "recall": 1,
+    "recallCI": [
+      0.8241154494176252,
+      1
+    ],
+    "negativeRuns": 12,
+    "falseAlarms": 2,
+    "falsePositiveRate": 0.16666666666666666,
+    "falsePositiveCI": [
+      0.04696414761482223,
+      0.44803635738467273
+    ],
+    "stability": 0.9666666666666666,
+    "remediations": 25,
+    "remediationsAnchored": 12,
+    "anchorRate": 0.48,
+    "avgTotalTokens": 953.8666666666667,
+    "avgDurationMs": 14402.433333333332,
+    "perCase": [
+      {
+        "id": "secret-db-password",
+        "expectBlock": true,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 3,
+        "risks": {
+          "HIGH": 3
+        },
+        "agreement": 1
+      },
+      {
+        "id": "sqli-string-concat",
+        "expectBlock": true,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 3,
+        "risks": {
+          "HIGH": 3
+        },
+        "agreement": 1
+      },
+      {
+        "id": "sqli-parameterized",
+        "expectBlock": false,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 2,
+        "risks": {
+          "MEDIUM": 2,
+          "LOW": 1
+        },
+        "agreement": 0.6666666666666666
+      },
+      {
+        "id": "cmd-injection-exec",
+        "expectBlock": true,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 3,
+        "risks": {
+          "MEDIUM": 3
+        },
+        "agreement": 1
+      },
+      {
+        "id": "eval-user-input",
+        "expectBlock": true,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 3,
+        "risks": {
+          "HIGH": 3
+        },
+        "agreement": 1
+      },
+      {
+        "id": "xss-innerhtml",
+        "expectBlock": true,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 3,
+        "risks": {
+          "HIGH": 3
+        },
+        "agreement": 1
+      },
+      {
+        "id": "weak-reset-token",
+        "expectBlock": true,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 3,
+        "risks": {
+          "MEDIUM": 2,
+          "HIGH": 1
+        },
+        "agreement": 1
+      },
+      {
+        "id": "secret-moved-to-env",
+        "expectBlock": false,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 0,
+        "risks": {
+          "LOW": 3
+        },
+        "agreement": 1
+      },
+      {
+        "id": "clean-rename-variable",
+        "expectBlock": false,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 0,
+        "risks": {
+          "LOW": 3
+        },
+        "agreement": 1
+      },
+      {
+        "id": "clean-add-types",
+        "expectBlock": false,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 0,
+        "risks": {
+          "LOW": 3
+        },
+        "agreement": 1
+      }
+    ]
+  },
+  "records": [
+    {
+      "caseId": "secret-db-password",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 821,
+      "completionTokens": 155,
+      "durationMs": 15009
+    },
+    {
+      "caseId": "secret-db-password",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 821,
+      "completionTokens": 173,
+      "durationMs": 17696
+    },
+    {
+      "caseId": "secret-db-password",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 821,
+      "completionTokens": 160,
+      "durationMs": 16261
+    },
+    {
+      "caseId": "sqli-string-concat",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 822,
+      "completionTokens": 146,
+      "durationMs": 13528
+    },
+    {
+      "caseId": "sqli-string-concat",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 822,
+      "completionTokens": 151,
+      "durationMs": 15384
+    },
+    {
+      "caseId": "sqli-string-concat",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 822,
+      "completionTokens": 146,
+      "durationMs": 14850
+    },
+    {
+      "caseId": "sqli-parameterized",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 822,
+      "completionTokens": 185,
+      "durationMs": 17406
+    },
+    {
+      "caseId": "sqli-parameterized",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "LOW",
+      "predictedBlock": false,
+      "vulnerabilities": 0,
+      "remediations": 0,
+      "remediationsAnchored": 0,
+      "promptTokens": 822,
+      "completionTokens": 62,
+      "durationMs": 6378
+    },
+    {
+      "caseId": "sqli-parameterized",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 822,
+      "completionTokens": 153,
+      "durationMs": 15734
+    },
+    {
+      "caseId": "cmd-injection-exec",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 821,
+      "completionTokens": 208,
+      "durationMs": 21257
+    },
+    {
+      "caseId": "cmd-injection-exec",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 821,
+      "completionTokens": 191,
+      "durationMs": 19445
+    },
+    {
+      "caseId": "cmd-injection-exec",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 821,
+      "completionTokens": 188,
+      "durationMs": 19289
+    },
+    {
+      "caseId": "eval-user-input",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 794,
+      "completionTokens": 172,
+      "durationMs": 17699
+    },
+    {
+      "caseId": "eval-user-input",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 794,
+      "completionTokens": 173,
+      "durationMs": 17691
+    },
+    {
+      "caseId": "eval-user-input",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 794,
+      "completionTokens": 172,
+      "durationMs": 18700
+    },
+    {
+      "caseId": "xss-innerhtml",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 796,
+      "completionTokens": 133,
+      "durationMs": 13270
+    },
+    {
+      "caseId": "xss-innerhtml",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 796,
+      "completionTokens": 127,
+      "durationMs": 13544
+    },
+    {
+      "caseId": "xss-innerhtml",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 796,
+      "completionTokens": 131,
+      "durationMs": 14920
+    },
+    {
+      "caseId": "weak-reset-token",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 812,
+      "completionTokens": 146,
+      "durationMs": 14520
+    },
+    {
+      "caseId": "weak-reset-token",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 812,
+      "completionTokens": 150,
+      "durationMs": 15912
+    },
+    {
+      "caseId": "weak-reset-token",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 812,
+      "completionTokens": 151,
+      "durationMs": 15908
+    },
+    {
+      "caseId": "secret-moved-to-env",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "LOW",
+      "predictedBlock": false,
+      "vulnerabilities": 0,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 823,
+      "completionTokens": 148,
+      "durationMs": 15611
+    },
+    {
+      "caseId": "secret-moved-to-env",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "LOW",
+      "predictedBlock": false,
+      "vulnerabilities": 0,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 823,
+      "completionTokens": 148,
+      "durationMs": 15592
+    },
+    {
+      "caseId": "secret-moved-to-env",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "LOW",
+      "predictedBlock": false,
+      "vulnerabilities": 0,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 823,
+      "completionTokens": 146,
+      "durationMs": 14822
+    },
+    {
+      "caseId": "clean-rename-variable",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "LOW",
+      "predictedBlock": false,
+      "vulnerabilities": 0,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 831,
+      "completionTokens": 110,
+      "durationMs": 11775
+    },
+    {
+      "caseId": "clean-rename-variable",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "LOW",
+      "predictedBlock": false,
+      "vulnerabilities": 0,
+      "remediations": 0,
+      "remediationsAnchored": 0,
+      "promptTokens": 831,
+      "completionTokens": 60,
+      "durationMs": 6376
+    },
+    {
+      "caseId": "clean-rename-variable",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "LOW",
+      "predictedBlock": false,
+      "vulnerabilities": 0,
+      "remediations": 0,
+      "remediationsAnchored": 0,
+      "promptTokens": 831,
+      "completionTokens": 60,
+      "durationMs": 7116
+    },
+    {
+      "caseId": "clean-add-types",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "LOW",
+      "predictedBlock": false,
+      "vulnerabilities": 0,
+      "remediations": 0,
+      "remediationsAnchored": 0,
+      "promptTokens": 799,
+      "completionTokens": 60,
+      "durationMs": 6144
+    },
+    {
+      "caseId": "clean-add-types",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "LOW",
+      "predictedBlock": false,
+      "vulnerabilities": 0,
+      "remediations": 0,
+      "remediationsAnchored": 0,
+      "promptTokens": 799,
+      "completionTokens": 60,
+      "durationMs": 6185
+    },
+    {
+      "caseId": "clean-add-types",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "LOW",
+      "predictedBlock": false,
+      "vulnerabilities": 0,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 799,
+      "completionTokens": 128,
+      "durationMs": 14051
+    }
+  ]
+}

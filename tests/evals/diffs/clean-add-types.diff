@@ -1,0 +1,8 @@
+diff --git a/src/format.ts b/src/format.ts
+--- a/src/format.ts
++++ b/src/format.ts
+@@ -1,4 +1,4 @@
+-export function formatName(first, last) {
++export function formatName(first: string, last: string): string {
+   return `${first} ${last}`.trim();
+ }

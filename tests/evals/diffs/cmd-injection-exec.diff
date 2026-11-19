@@ -1,0 +1,10 @@
+diff --git a/src/convert.ts b/src/convert.ts
+--- a/src/convert.ts
++++ b/src/convert.ts
+@@ -1,6 +1,6 @@
+ import { exec } from "node:child_process";
+ 
+ export function convertImage(req: Request) {
+-  execFile("convert", [req.query.file, "out.png"]);
++  exec("convert " + req.query.file + " out.png");
+ }

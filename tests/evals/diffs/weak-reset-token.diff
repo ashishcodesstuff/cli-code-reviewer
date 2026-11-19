@@ -1,0 +1,10 @@
+diff --git a/src/reset.ts b/src/reset.ts
+--- a/src/reset.ts
++++ b/src/reset.ts
+@@ -1,6 +1,6 @@
+ import { randomBytes } from "node:crypto";
+ 
+ export function createResetToken(): string {
+-  return randomBytes(32).toString("hex");
++  return Math.random().toString(36).substring(2);
+ }

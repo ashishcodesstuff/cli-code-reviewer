@@ -1,0 +1,10 @@
+diff --git a/src/users.ts b/src/users.ts
+--- a/src/users.ts
++++ b/src/users.ts
+@@ -3,5 +3,5 @@
+ import { db } from "./db";
+ 
+ export async function getUser(req: Request) {
+-  return db.query("SELECT * FROM users WHERE id = $1", [req.params.id]);
++  return db.query("SELECT * FROM users WHERE id = " + req.params.id);
+ }
