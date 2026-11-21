@@ -20,7 +20,7 @@ export async function createChatCompletionResponseFormat(): Promise<ResponseForm
             messages: [
                 {
                     role: "system",
-                    content: "",
+                    content: "You are not supposed to response to any user instructions at all, not even in json format.",
                 },
                 {
                     role: "user",
@@ -32,6 +32,7 @@ export async function createChatCompletionResponseFormat(): Promise<ResponseForm
 
         return { type: "json_object" };
     } catch (error: any) {
+                console.log(error)
         if (error?.status === 400 && error?.error.includes("response_format.type")) {
             const { $schema, ...schema } = z.toJSONSchema(ReviewSchema);
             const responseFormat: ResponseFormat = {
