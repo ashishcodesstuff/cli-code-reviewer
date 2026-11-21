@@ -3,7 +3,6 @@ import OpenAI from "openai";
 import { config } from "./index.js";
 import z from "zod";
 import { ReviewSchema } from "./reviewer.js";
-import { zodResponseFormat } from "openai/helpers/zod.mjs";
 import { ChatCompletionCreateParamsNonStreaming } from "openai/resources";
 
 export const client = new OpenAI({
