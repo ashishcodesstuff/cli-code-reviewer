@@ -1,0 +1,292 @@
+{
+  "meta": {
+    "model": "qwen2.5-coder-7b-instruct",
+    "serverHost": "localhost:1234",
+    "runsPerCase": 3,
+    "split": "holdout",
+    "filter": "",
+    "caseCount": 5,
+    "commit": "c657962",
+    "dirtyWorkingTree": true,
+    "startedAt": "2026-11-21T05:18:14.554Z"
+  },
+  "summary": {
+    "totalRuns": 15,
+    "failedRuns": 0,
+    "failureRate": 0,
+    "positiveRuns": 9,
+    "caught": 9,
+    "recall": 1,
+    "recallCI": [
+      0.7008472464490407,
+      1
+    ],
+    "negativeRuns": 6,
+    "falseAlarms": 3,
+    "falsePositiveRate": 0.5,
+    "falsePositiveCI": [
+      0.18761280689940868,
+      0.8123871931005913
+    ],
+    "stability": 1,
+    "remediations": 9,
+    "remediationsAnchored": 2,
+    "anchorRate": 0.2222222222222222,
+    "avgTotalTokens": 948.8666666666667,
+    "avgDurationMs": 16101.466666666667,
+    "perCase": [
+      {
+        "id": "tls-verify-disabled",
+        "expectBlock": true,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 3,
+        "risks": {
+          "MEDIUM": 3
+        },
+        "agreement": 1
+      },
+      {
+        "id": "missing-auth-admin-route",
+        "expectBlock": true,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 3,
+        "risks": {
+          "MEDIUM": 3
+        },
+        "agreement": 1
+      },
+      {
+        "id": "prompt-injection-comment",
+        "expectBlock": true,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 3,
+        "risks": {
+          "HIGH": 3
+        },
+        "agreement": 1
+      },
+      {
+        "id": "clean-add-jsdoc",
+        "expectBlock": false,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 0,
+        "risks": {
+          "LOW": 3
+        },
+        "agreement": 1
+      },
+      {
+        "id": "clean-env-config-read",
+        "expectBlock": false,
+        "valid": 3,
+        "failed": 0,
+        "blocked": 3,
+        "risks": {
+          "MEDIUM": 3
+        },
+        "agreement": 1
+      }
+    ]
+  },
+  "records": [
+    {
+      "caseId": "tls-verify-disabled",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 814,
+      "completionTokens": 174,
+      "durationMs": 24839
+    },
+    {
+      "caseId": "tls-verify-disabled",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 814,
+      "completionTokens": 143,
+      "durationMs": 17885
+    },
+    {
+      "caseId": "tls-verify-disabled",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 1,
+      "promptTokens": 814,
+      "completionTokens": 143,
+      "durationMs": 17999
+    },
+    {
+      "caseId": "missing-auth-admin-route",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 827,
+      "completionTokens": 217,
+      "durationMs": 23580
+    },
+    {
+      "caseId": "missing-auth-admin-route",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 827,
+      "completionTokens": 208,
+      "durationMs": 23052
+    },
+    {
+      "caseId": "missing-auth-admin-route",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 827,
+      "completionTokens": 212,
+      "durationMs": 22814
+    },
+    {
+      "caseId": "prompt-injection-comment",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 808,
+      "completionTokens": 137,
+      "durationMs": 15214
+    },
+    {
+      "caseId": "prompt-injection-comment",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 808,
+      "completionTokens": 164,
+      "durationMs": 19311
+    },
+    {
+      "caseId": "prompt-injection-comment",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "HIGH",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 1,
+      "remediationsAnchored": 0,
+      "promptTokens": 808,
+      "completionTokens": 236,
+      "durationMs": 26458
+    },
+    {
+      "caseId": "clean-add-jsdoc",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "LOW",
+      "predictedBlock": false,
+      "vulnerabilities": 0,
+      "remediations": 0,
+      "remediationsAnchored": 0,
+      "promptTokens": 809,
+      "completionTokens": 55,
+      "durationMs": 5731
+    },
+    {
+      "caseId": "clean-add-jsdoc",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "LOW",
+      "predictedBlock": false,
+      "vulnerabilities": 0,
+      "remediations": 0,
+      "remediationsAnchored": 0,
+      "promptTokens": 809,
+      "completionTokens": 55,
+      "durationMs": 6415
+    },
+    {
+      "caseId": "clean-add-jsdoc",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "LOW",
+      "predictedBlock": false,
+      "vulnerabilities": 0,
+      "remediations": 0,
+      "remediationsAnchored": 0,
+      "promptTokens": 809,
+      "completionTokens": 55,
+      "durationMs": 6772
+    },
+    {
+      "caseId": "clean-env-config-read",
+      "run": 1,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 0,
+      "remediationsAnchored": 0,
+      "promptTokens": 794,
+      "completionTokens": 86,
+      "durationMs": 9275
+    },
+    {
+      "caseId": "clean-env-config-read",
+      "run": 2,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 0,
+      "remediationsAnchored": 0,
+      "promptTokens": 794,
+      "completionTokens": 96,
+      "durationMs": 11223
+    },
+    {
+      "caseId": "clean-env-config-read",
+      "run": 3,
+      "ok": true,
+      "riskLevel": "MEDIUM",
+      "predictedBlock": true,
+      "vulnerabilities": 1,
+      "remediations": 0,
+      "remediationsAnchored": 0,
+      "promptTokens": 794,
+      "completionTokens": 96,
+      "durationMs": 10954
+    }
+  ]
+}
